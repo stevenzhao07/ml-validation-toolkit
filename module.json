@@ -1,0 +1,42 @@
+{
+  "id": "ml-validation-toolkit",
+  "title": "医疗 AI 模型验证包（性能/校准/公平性，零依赖）",
+  "description": "医疗 AI 模型的验证工具包：给定 y_true / y_pred（可选 subgroup），计算 AUC、Accuracy、Precision/Recall/F1、Brier 校准误差，以及子组公平性缺口（人口均等等差 / 机会均等等差）。仅 Python 标准库实现，便于离线审计。",
+  "triggers": {
+    "keywords": [
+      "ml-validation",
+      "auc",
+      "calibration",
+      "fairness",
+      "model-validation",
+      "验证",
+      "公平性"
+    ],
+    "file_patterns": [
+      "ml_validation.py"
+    ],
+    "intents": [
+      "模型验证",
+      "公平性测试",
+      "校准"
+    ]
+  },
+  "provides": [
+    "ml-validation-toolkit",
+    "ml-validation",
+    "fairness",
+    "calibration"
+  ],
+  "skills": [],
+  "needs_backends": [],
+  "license": "Apache-2.0",
+  "upstream": null,
+  "cost": "low",
+  "lazy": true,
+  "nested": true,
+  "entry": "scripts/ml_validation.py",
+  "deps": [],
+  "generated_by": "lgd-skeleton/1.0 (manual port from rea scaffold)",
+  "idea": "医疗 AI 模型验证（性能/校准/子组公平性，零依赖）",
+  "extension_note": "新增指标：在 `METRICS` 注册表加一个 `(name, fn)` 即可。"
+}

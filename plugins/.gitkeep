@@ -1,0 +1,2 @@
+# 扩展点（plugins/）
+新增指标：在 `METRICS` 注册表加一个 `(name, fn)` 即可。

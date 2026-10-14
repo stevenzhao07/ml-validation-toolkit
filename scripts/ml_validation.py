@@ -145,9 +145,12 @@ def _demo() -> int:
 def main() -> int:
     ap = argparse.ArgumentParser(description="医疗 AI 模型验证")
     ap.add_argument("--demo", action="store_true", help="跑内置演示数据（无需 --data）")
+    ap.add_argument("--selftest", action="store_true", help="跑内置自测（断言 + 负对照 + xfail）")
     ap.add_argument("--data", help="CSV: 含 y_true,y_pred 列（演示可省略）")
     ap.add_argument("--subgroup", help="子组列名（可选，用于公平性）")
     args = ap.parse_args()
+    if getattr(args, "selftest", False):
+        return _selftest()
     if args.demo:
         return _demo()
     if not args.data:
@@ -167,6 +170,58 @@ def main() -> int:
         print("\n== 公平性 ==")
         print(f"  人口均等等差: {fr['demographic_parity_gap']:.4f}")
         print(f"  机会均等等差: {fr['equal_opportunity_gap']:.4f}")
+    return 0
+
+
+# ==================== 内置自测（--selftest） ====================
+# 由 conformance 补丁于 2026-10-14 生成（生成器 v2）。
+# 特性：端到端 CLI 调用 + 内容断言 + 负对照 + xfail（已知缺陷显式标注，不掩盖）。
+_SELFTEST_CASES = [(['--demo'], 0, [], [], None), ([], 2, [], [], None)]
+
+
+def _selftest() -> int:
+    import os as _os
+    import subprocess as _sp
+    _here = _os.path.dirname(_os.path.abspath(__file__))
+    # 仓库根：脚本位于 <repo>/scripts/ 时取上一级；否则取脚本所在目录
+    _root = _os.path.dirname(_here) if _os.path.basename(_here) == "scripts" else _here
+    _script = _os.path.abspath(__file__)
+    _fail, _xfail, _n = [], [], 0
+    for _case in _SELFTEST_CASES:
+        _args, _rc, _must, _mustnot = _case[0], _case[1], _case[2], _case[3]
+        _reason = _case[4] if len(_case) > 4 else None
+        _n += 1
+        _p = _sp.run([sys.executable, _script] + _args, capture_output=True, cwd=_root)
+        _out = _p.stdout.decode("utf-8", "replace")
+        _bad = []
+        if _p.returncode != _rc:
+            _bad.append(f"rc={_p.returncode} 期望 {_rc}")
+        for _m in _must:
+            if _m not in _out:
+                _bad.append(f"输出缺少 {_m!r}")
+        for _m in _mustnot:
+            if _m in _out:
+                _bad.append(f"输出含禁止内容 {_m!r}")
+        if _rc == 0 and not _out.strip():
+            _bad.append("rc=0 但输出为空（假绿）")
+        if _bad:
+            if _reason:
+                _xfail.append(f"xfail args={_args}：{'；'.join(_bad)} ← 已知缺陷：{_reason}")
+            else:
+                _fail.append(f"args={_args}：{'；'.join(_bad)}")
+    # 通用负对照：未知参数必须非零
+    _n += 1
+    _p = _sp.run([sys.executable, _script, "--__nonexistent_flag__"], capture_output=True, cwd=_root)
+    if _p.returncode == 0:
+        _fail.append("负对照失败：未知参数竟返回 0")
+    for _x in _xfail:
+        print("[selftest][xfail] " + _x)
+    if _fail:
+        print(f"[selftest] FAILED {len(_fail)}/{_n}")
+        for _f in _fail:
+            print("  - " + _f)
+        return 1
+    print(f"[selftest] PASS {_n - len(_xfail)}/{_n}（含负对照；xfail {len(_xfail)} 项为已知缺陷）")
     return 0
 
 

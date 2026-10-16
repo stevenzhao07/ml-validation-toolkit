@@ -3,7 +3,7 @@
   "stage": "X",
   "stage_name": "横切：AI 模型验证",
   "title": "医疗 AI 模型验证包（性能/校准/公平性，零依赖）",
-  "description": "医疗 AI 模型的验证工具包：给定 y_true / y_pred（可选 subgroup），计算 AUC、Accuracy、Precision/Recall/F1、Brier 校准误差，以及子组公平性缺口（人口均等等差 / 机会均等等差）。仅 Python 标准库实现，便于离线审计。",
+  "description": "Medical-AI model validation toolkit: metrics from y_true / y_pred (optional subgroup analysis) for clinical performance evaluation.",
   "triggers": {
     "keywords": [
       "ml-validation",
